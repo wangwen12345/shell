@@ -1,0 +1,56 @@
+sed (逐行处理)
+#sed [选项] '条件指令' 文件
+选项:
+-n 屏蔽默认输出
+-r 支持扩展正则
+-i 修改源文件
+条件：
+行号 4 4,5 4~2 4,+10
+/正则/
+指令：
+p 打印
+d 删除
+s 替换s/旧/新/g
+a 追加    (该行末尾另起一行追加)
+i 插入    (该行前另起一行插入)
+c 替换行  (该行替换为)
+[root@svr5 ~]# sed  '2a XX'   a.txt            //在第二行后面，追加XX
+[root@svr5 ~]# sed  '2i XX'   a.txt            //在第二行前面，插入XX
+[root@svr5 ~]# sed  '2c XX'   a.txt            //将第二行替换为XX
+
+sed文本处理工具的用法：
+用法1：前置命令 | sed  [选项]  '条件指令'
+用法2：sed  [选项]  '条件指令'  文件.. ..
+打印第3行：
+[root@svr5 ~]# sed -n '3p' /etc/passwd
+打印第3到5行：
+[root@svr5 ~]# sed -n '3,5p' /etc/passwd
+打印第3和5行：
+[root@svr5 ~]# sed -n '3p;5p' /etc/passwd
+打印第3以及后面的10行：
+[root@svr5 ~]# sed -n '3,+10p' /etc/passwd
+打印奇数行：
+sed -n '1~2p' /etc/passwd  (表示1+2的n次方)
+打印偶数行：
+[root@svr5 ~]# sed -n '2~2p' /etc/passwd
+
+正则案例
+打印包含root的行：
+[root@svr5 ~]# sed -n '/root/p' /etc/passwd (/正则/)
+[root@svr5 ~]# sed  -n '$=' a.txt            //输出文件的行数$表示结尾,=表示行数
+[root@svr5 ~]# sed  '/^$/d' a.txt             //删除所有空行
+
+sed命令的s替换基本功能（s/旧内容/新内容/选项）
+[root@svr5 ~]# sed '3,7s/2017/xxxx/g' test.txt  //将3-7行中所有的2017替换为xxxx 
+sed '3,7s/2017/xxxx/2' test.txt  //将3-7行中第二个2017替换为xxxx
+
+替换操作的分隔“/”可改用其他字符，如#、&等，便于修改文件路径
+sed 's/\/bin\/bash/\/sbin\/sh/' a.txt  //将/bin/bash替换为/sbin/sh
+[root@svr5 ~]# sed 's#/bin/bash#/sbin/sh#' a.txt  //将/bin/bash替换为/sbin/sh
+sed -r 's/^(.)(.)(.*)(.)(.)$/\1\4\3\2\5/' /root/ww.txt //将文件中每行的第2个、倒数第2个字符互换
+
+
+
+
+
+
