@@ -1,0 +1,89 @@
+awk工具 (筛选与grep相似)
+  -单独使用有统计功能
+  -逐行处理检查输入文本
+  -通常用在shell脚本中,获取指定的数据
+ 1）基本操作方法
+   格式：awk [选项] '[条件]{指令}' 文件               {}内的内容awk都认为是变量,!!!!!常量必需要用""
+其中，print 是最常用的编辑指令；若有多条编辑指令，可用分号分隔。
+Awk过滤数据时支持仅打印某一列，如第2列、第5列等。
+处理文本时，若未指定分隔符，则默认将空格、制表符等作为分隔符。
+  
+awk常用内置变量：
+$0 文本当前行的全部内容 
+$1	文本的第1列
+$2	文件的第2列
+$3	文件的第3列，依此类推
+NR	文件当前行的行号 (now row)
+NF	文件当前行的列数（有几列）(now field)
+输出每次处理行的行号，以及当前行以“:”分隔的字段个数（有几列）：
+
+[root@server0 ~]# awk -F: '{print $1,"的解释器是:",$7}' /etc/passwd
+tailf /var/log/secure //实时看远程你设备的记录文件后10行
+
+awk '/Failed/{print $11}' /var/log/secure 失败的连接过我
+awk '/Accepted/{print $11}' /var/log/secure 连接过我且成功的
+firewall-cmd --permanent --zone=block --add-source=
+
+
+awk  [选项]  ' BEGIN{指令} 条件{指令} END{指令}'  文件 
+
+
+BEGIN{ }	行前处理，读取文件内容前执行，指令执行1次
+{ }	逐行处理，读取文件过程中执行，指令执行n次
+END{ }	行后处理，读取文件结束后执行，指令执行1次
+
+awk -F: 'BEGIN{print "用户名 UID 家目录"}{print  $1,$3,$6}END{print "总用户量:" NR}' /etc/passwd |column -t   //column -t 对齐前面的输出结果(以空格为间隔) 
+
+awk  -F: '$7!~/nologin$/{print $1,$7}' /etc/passwd  //第七列不包含nologin
+awk  -F: '$1~/root/' /etc/passwd    //第一列匹配(包含root)
+awk -F: '$3<1000{print NR,$1,$3}' /etc/passwd|column  -t   匹配第三列小于1000
+awk -F: '$1=="root"' /etc/passwd   //匹配第一列只有root
+
+数字/字符精确匹配
+$3>=1000
+$3<1000
+$1=="root"  //字符串必须用""
+
+awk -F: '$3>0&&$3<5' /etc/passwd        // 输出0<$3<5的行
+
+awk 'BEGIN{print " 2*3="2*3,"2+9="2+9,"8/3="8%3}'
+2*3=6 2+9=11 8/3=2
+
+seq 100 | awk  '$1%7==0'  //输出能被7整除的
+
+i=root
+awk -F: -v x=$i '$1==x' /etc/shadow  //输出第一列为root的行
+
+awk -F: -v  y=$i '$1==y' /etc/shadow 输出第一列于变量i值相同的行(-v y=$i 定义变量y)
+
+awk -F: '{if(条件){命令}}END{print x}'  /etc/passwd  (END用来打印某一变量)
+
+awk 'BEGIN{w[0]=1;w[1]=2;for(i in w){print i,w[i]}}'  (固定格式,i的值为w的下标)
+ab -c100 -n100000 http://172.25.0.254/ (访问自己100000次)
+tailf  var/log/httpd/access_log (动态查看访问本机的IP)
+
+vim a.txt
+192.168.4.7
+202.25.0.11
+192.168.4.7
+202.25.0.11
+192.168.4.7
+10.10.10.10
+
+#awk '{ip[$1]++}' a.txt   /var/log/httpd/access_log
+统计$1出现的次数
+awk '{ip[$1]++}END{for(i in ip){print ip[i],i}}'
+
+ip[192.168.4.7]=1
+ip[202.25.0.11]=1
+ip[192.168.4.7]=2
+ip[202.25.0.11]=2
+ip[192.168.4.7]=3
+ip[10.10.10.10]=1
+#awk '{ip[$1]++}END{for(i in ip){print ip[i],i}}' /var/log/httpd/access_log(通知访问你的电脑的IP,次数)
+#who |awk '{user[$1]++}END{for(i in user){print user[i],i}}'| sort -n(统计登录你计算机的账户,次数,sort -n 从小到大排序 sort -rn 从大到小)
+ 
+
+
+
+
